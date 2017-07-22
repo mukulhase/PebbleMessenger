@@ -2,9 +2,6 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
-var Accel = require('ui/accel');
-var Voice = require('ui/voice');
-
 var intermediateLoading;
 function showLoading(){
   intermediateLoading = new UI.Window({
@@ -54,6 +51,41 @@ var loadingScreen = new UI.Card({
 });
 loadingScreen.show();
 
+function sectionize(items){
+  var sections = [];
+  var currentTitle = "";
+  items.forEach(function(item){
+    if(item.title != currentTitle){
+      sections.push({
+        title:item.title,
+        items:[]
+      });
+      currentTitle = item.title;
+    }
+    sections[sections.length-1].items.push({title:item.subtitle});
+  });
+  return sections;
+}
+
+function forceWrap(sentence){
+  return sentence.trim().replace(/(\S(.{0,20}\S)?)\s+/g, '$1\n');
+}
+
+function hackedView(sections){
+  var hackedSections = [{items:[]}];
+  sections.forEach(function(section){
+    hackedSections[hackedSections.length-1].items.push({title:section.title});
+    section.items.forEach(function(item){
+      var body = forceWrap(item.title);
+      var lines = body.split('\n');
+      lines.forEach(function(line){
+        hackedSections.push({title:line,items:[]});
+      });
+    });
+  });
+  return hackedSections;
+}
+
 function showChat(threadID){
   showLoading();
   ajax({ url: 'https://test.mukulhase.com/thread?threadID='+threadID, type: 'json' },
@@ -65,23 +97,10 @@ function showChat(threadID){
         };
       });
       var menu = new UI.Menu({
-        sections: [{
-          items: items
-        }]
+        sections: hackedView(sectionize(items))
       });
       menu.on('select', function(e) {
         //do voice here
-      });
-      menu.on('accelTap', function(e){
-        console.log("Tap log!");
-        Voice.dictate('start', false, function(e) {
-        if (e.err) {
-            console.log('Error: ' + e.err);
-            return;
-          }
-          ajax({url: 'https://test.mukulhase.com/send?threadID='+threadID+'&message='+e.transcription});
-          showChat(threadID);
-      });
       });
       menu.on('click','back', function(e) {
         showList();
