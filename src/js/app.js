@@ -2,9 +2,9 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
-
+var intermediateLoading;
 function showLoading(){
-  var wind = new UI.Window({
+  intermediateLoading = new UI.Window({
     backgroundColor: 'black'
   });
   var radial = new UI.Radial({
@@ -22,7 +22,7 @@ function showLoading(){
     text: 'Loading',
     textAlign: 'center'
   });
-  var windSize = wind.size();
+  var windSize = intermediateLoading.size();
   // Center the radial in the window
   var radialPos = radial.position()
       .addSelf(windSize)
@@ -35,9 +35,9 @@ function showLoading(){
       .subSelf(textfield.size())
       .multiplyScalar(0.5);
   textfield.position(textfieldPos);
-  wind.add(radial);
-  wind.add(textfield);
-  wind.show();
+  intermediateLoading.add(radial);
+  intermediateLoading.add(textfield);
+  intermediateLoading.show();
 }
 
 
@@ -69,7 +69,11 @@ function showChat(threadID){
       menu.on('select', function(e) {
         //do voice here
       });
+      menu.on('click','back', function(e) {
+        showList();
+      });
       menu.show();
+      intermediateLoading.hide();
     });
 }
 
@@ -92,16 +96,9 @@ function showList(){
       showChat(e.item.threadID);
     });
     menu.show();
+    loadingScreen.hide();
   });
 }
 
 showList();
 
-
-main.on('click', 'down', function(e) {
-  var card = new UI.Card();
-  card.title('A Card');
-  card.subtitle('Is a Window');
-  card.body('The simplest window type in Pebble.js.');
-  card.show();
-});
