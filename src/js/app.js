@@ -2,6 +2,8 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
+var Accel = require('ui/accel');		
+var Voice = require('ui/voice');
 var intermediateLoading;
 function showLoading(){
   intermediateLoading = new UI.Window({
@@ -101,6 +103,17 @@ function showChat(threadID){
       });
       menu.on('select', function(e) {
         //do voice here
+      });
+      menu.on('accelTap', function(e){
+        console.log("Tap log!");
+        Voice.dictate('start', false, function(e) {
+          if (e.err) {
+            console.log('Error: ' + e.err);
+            return;
+          }
+          ajax({url: 'https://test.mukulhase.com/send?threadID='+threadID+'&message='+e.transcription});
+          showChat(threadID);
+        });
       });
       menu.on('click','back', function(e) {
         showList();
