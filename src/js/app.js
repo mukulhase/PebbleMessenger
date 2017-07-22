@@ -3,39 +3,7 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
 
-
-
-var main = new UI.Card({
-  title: 'Messenger for Pebble',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Loading Chats',
-  body: 'Please Wait....',
-  subtitleColor: 'indigo', // Named colors
-  bodyColor: '#9a0036' // Hex colors
-});
-main.show();
-ajax({ url: 'https://test.mukulhase.com/list', type: 'json' },
-  function(data, status, req) {
-    var items = data.map(function(obj){
-      return {
-        title: obj.name,
-        subtitle: obj.snippet
-      };
-    });
-    var menu = new UI.Menu({
-      sections: [{
-        items: items
-      }]
-    });
-    menu.on('select', function(e) {
-      console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-      console.log('The item is titled "' + e.item.title + '"');
-    });
-    menu.show();
-  }
-);
-
-main.on('click', 'select', function(e) {
+function showLoading(){
   var wind = new UI.Window({
     backgroundColor: 'black'
   });
@@ -51,7 +19,7 @@ main.on('click', 'select', function(e) {
   var textfield = new UI.Text({
     size: new Vector2(140, 60),
     font: 'gothic-24-bold',
-    text: 'Dynamic\nWindow',
+    text: 'Loading',
     textAlign: 'center'
   });
   var windSize = wind.size();
@@ -70,7 +38,65 @@ main.on('click', 'select', function(e) {
   wind.add(radial);
   wind.add(textfield);
   wind.show();
+}
+
+
+var loadingScreen = new UI.Card({
+  title: 'Messenger for Pebble',
+  icon: 'images/menu_icon.png',
+  subtitle: 'Loading Chats',
+  body: 'Please Wait....',
+  subtitleColor: 'indigo', // Named colors
+  bodyColor: '#9a0036' // Hex colors
 });
+loadingScreen.show();
+
+function showChat(threadID){
+  showLoading();
+  ajax({ url: 'https://test.mukulhase.com/thread?threadID='+threadID, type: 'json' },
+    function(data, status, req) {
+      var items = data.map(function(obj){
+        return {
+          title: obj.name,
+          subtitle: obj.body,
+        };
+      });
+      var menu = new UI.Menu({
+        sections: [{
+          items: items
+        }]
+      });
+      menu.on('select', function(e) {
+        //do voice here
+      });
+      menu.show();
+    });
+}
+
+function showList(){
+  ajax({ url: 'https://test.mukulhase.com/list', type: 'json' },
+  function(data, status, req) {
+    var items = data.map(function(obj){
+      return {
+        title: obj.name,
+        subtitle: obj.snippet,
+        threadID: obj.threadID
+      };
+    });
+    var menu = new UI.Menu({
+      sections: [{
+        items: items
+      }]
+    });
+    menu.on('select', function(e) {
+      showChat(e.item.threadID);
+    });
+    menu.show();
+  });
+}
+
+showList();
+
 
 main.on('click', 'down', function(e) {
   var card = new UI.Card();
