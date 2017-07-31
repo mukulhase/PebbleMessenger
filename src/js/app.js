@@ -4,6 +4,8 @@ var Vector2 = require('vector2');
 var ajax = require('ajax');
 var Accel = require('ui/accel');		
 var Voice = require('ui/voice');
+var Settings = require('settings');
+var url = 'pebblemessenger.mukulhase.com';
 var intermediateLoading;
 function showLoading(){
   intermediateLoading = new UI.Window({
@@ -85,6 +87,7 @@ function hackedView(sections){
       });
     });
   });
+  hackedSections[hackedSections.length-1].items.push({title:'Shake to Reply'});
   return hackedSections;
 }
 
@@ -146,5 +149,35 @@ function showList(){
   });
 }
 
-showList();
+function showTokenScreen(callback){
+  var tokenScreen = new UI.Card({
+      title: Settings.data('token'),
+      subtitle: 'Pebble Token',
+      body: 'Log into FB at test.mukulhase.com',
+      subtitleColor: 'indigo', // Named colors
+      bodyColor: '#9a0036' // Hex colors
+    });
+  tokenScreen.on('select', function(e) {
+      ajax({ url: 'https://test.mukulhase.com/tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
+        if(!res.error){
+          callback()
+        }
+      })
+    });
+  tokenScreen.show();
+}
+
+Settings.data('token',null);
+if(!Settings.data('token')){
+  ajax({ url: 'https://test.mukulhase.com/getToken', type: 'json' },
+  function(data, status, req) {
+    Settings.data('token', data.token);
+    showTokenScreen(showList);
+    
+  });
+} else {
+  showList();
+}
+
+
 
