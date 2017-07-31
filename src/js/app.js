@@ -5,7 +5,7 @@ var ajax = require('ajax');
 var Accel = require('ui/accel');		
 var Voice = require('ui/voice');
 var Settings = require('settings');
-var url = 'pebblemessenger.mukulhase.com';
+var url = 'pebblemessenger.mukulhase.com/';
 var intermediateLoading;
 function showLoading(){
   intermediateLoading = new UI.Window({
@@ -50,8 +50,8 @@ var loadingScreen = new UI.Card({
   icon: 'images/menu_icon.png',
   subtitle: 'Loading Chats',
   body: 'Please Wait....',
-  subtitleColor: 'indigo', // Named colors
-  bodyColor: '#9a0036' // Hex colors
+  subtitleColor: 'indigo',
+  bodyColor: '#9a0036'
 });
 loadingScreen.show();
 
@@ -93,7 +93,7 @@ function hackedView(sections){
 
 function showChat(threadID){
   showLoading();
-  ajax({ url: 'https://test.mukulhase.com/thread?threadID='+threadID, type: 'json' },
+  ajax({ url: 'https://'+url+'thread?threadID='+threadID, type: 'json' },
     function(data, status, req) {
       var items = data.map(function(obj){
         return {
@@ -114,7 +114,7 @@ function showChat(threadID){
             console.log('Error: ' + e.err);
             return;
           }
-          ajax({url: 'https://test.mukulhase.com/send?threadID='+threadID+'&message='+e.transcription});
+          ajax({url: 'https://'+url+'send?threadID='+threadID+'&message='+e.transcription});
           showChat(threadID);
         });
       });
@@ -127,7 +127,7 @@ function showChat(threadID){
 }
 
 function showList(){
-  ajax({ url: 'https://test.mukulhase.com/list', type: 'json' },
+  ajax({ url: 'https://'+url+'list', type: 'json' },
   function(data, status, req) {
     var items = data.map(function(obj){
       return {
@@ -158,7 +158,7 @@ function showTokenScreen(callback){
       bodyColor: '#9a0036' // Hex colors
     });
   tokenScreen.on('select', function(e) {
-      ajax({ url: 'https://test.mukulhase.com/tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
+      ajax({ url: 'https://'+url+'tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
         if(!res.error){
           callback()
         }
@@ -169,7 +169,7 @@ function showTokenScreen(callback){
 
 Settings.data('token',null);
 if(!Settings.data('token')){
-  ajax({ url: 'https://test.mukulhase.com/getToken', type: 'json' },
+  ajax({ url: 'https://'+url+'getToken', type: 'json' },
   function(data, status, req) {
     Settings.data('token', data.token);
     showTokenScreen(showList);
