@@ -7,6 +7,12 @@ var Voice = require('ui/voice');
 var Settings = require('settings');
 var url = 'pebblemessenger.mukulhase.com/';
 var intermediateLoading;
+function tokenAjax(obj,callback){
+  ajax(obj, function(data, status, req){
+    
+    callback(data, status, req);
+  })
+}
 function showLoading(){
   intermediateLoading = new UI.Window({
     backgroundColor: 'black'
@@ -93,7 +99,7 @@ function hackedView(sections){
 
 function showChat(threadID){
   showLoading();
-  ajax({ url: 'https://'+url+'thread?threadID='+threadID, type: 'json' },
+  ajax({ url: 'https://'+url+ 'thread?token='+Settings.data('token') +'&threadID='+threadID, type: 'json' },
     function(data, status, req) {
       var items = data.map(function(obj){
         return {
@@ -114,7 +120,7 @@ function showChat(threadID){
             console.log('Error: ' + e.err);
             return;
           }
-          ajax({url: 'https://'+url+'send?threadID='+threadID+'&message='+e.transcription});
+          ajax({url: 'https://'+url+'send?'+ '?token='+Settings.data('token') +'&threadID='+threadID+'&message='+e.transcription});
           showChat(threadID);
         });
       });
@@ -127,7 +133,7 @@ function showChat(threadID){
 }
 
 function showList(){
-  ajax({ url: 'https://'+url+'list', type: 'json' },
+  ajax({ url: 'https://'+url+'list'+ '?token='+Settings.data('token'), type: 'json' },
   function(data, status, req) {
     var items = data.map(function(obj){
       return {
@@ -153,21 +159,20 @@ function showTokenScreen(callback){
   var tokenScreen = new UI.Card({
       title: Settings.data('token'),
       subtitle: 'Pebble Token',
-      body: 'Log into FB at test.mukulhase.com',
+      body: 'Log into FB at '+url,
       subtitleColor: 'indigo', // Named colors
       bodyColor: '#9a0036' // Hex colors
     });
-  tokenScreen.on('select', function(e) {
+  tokenScreen.on('click','select',function(e) {
       ajax({ url: 'https://'+url+'tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
         if(!res.error){
-          callback()
+          callback();
         }
-      })
+      });
     });
   tokenScreen.show();
 }
 
-Settings.data('token',null);
 if(!Settings.data('token')){
   ajax({ url: 'https://'+url+'getToken', type: 'json' },
   function(data, status, req) {
