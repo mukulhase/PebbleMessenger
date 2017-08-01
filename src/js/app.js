@@ -9,9 +9,12 @@ var url = 'pebblemessenger.mukulhase.com/';
 var intermediateLoading;
 function tokenAjax(obj,callback){
   ajax(obj, function(data, status, req){
-    
-    callback(data, status, req);
-  })
+    if(data.error){
+      showTokenScreen(showList);
+    } else {
+      callback(data, status, req);
+    }
+  });
 }
 function showLoading(){
   intermediateLoading = new UI.Window({
@@ -133,8 +136,9 @@ function showChat(threadID){
 }
 
 function showList(){
-  ajax({ url: 'https://'+url+'list'+ '?token='+Settings.data('token'), type: 'json' },
+  tokenAjax({ url: 'https://'+url+'list'+ '?token='+Settings.data('token'), type: 'json' },
   function(data, status, req) {
+    console.log(data);
     var items = data.map(function(obj){
       return {
         title: obj.name,
@@ -163,13 +167,15 @@ function showTokenScreen(callback){
       subtitleColor: 'indigo', // Named colors
       bodyColor: '#9a0036' // Hex colors
     });
+  showLoading();
   tokenScreen.on('click','select',function(e) {
-      ajax({ url: 'https://'+url+'tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
-        if(!res.error){
-          callback();
-        }
-      });
+    ajax({ url: 'https://'+url+'tokenStatus?token='+Settings.data('token'), type: 'json' }, function(res){
+      intermediateLoading.hide();
+      if(!res.error){
+        callback();
+      }
     });
+  });
   tokenScreen.show();
 }
 
