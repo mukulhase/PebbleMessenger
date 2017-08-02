@@ -1,4 +1,6 @@
 var UI = require('ui');
+var Vector2 = require('vector2');
+
 // No internet screen
 
 var noInternet = new UI.Card({
@@ -52,7 +54,7 @@ var loadingScreen = new UI.Card({
   bodyColor: '#9a0036'
 });
 
-modules.export = {
+module.exports = {
   noInternet: noInternet,
   loadingScreen: loadingScreen,
   intermediateLoading: intermediateLoading,

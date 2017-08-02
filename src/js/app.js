@@ -1,7 +1,7 @@
+var screens = require('./screens');
 var noInternet = screens.noInternet;
 var loadingScreen = screens.loadingScreen;
 var intermediateLoading = screens.intermediateLoading; 
-var screens = require('./screens');
 var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
@@ -16,6 +16,9 @@ function tokenAjax(obj,callback){
     } else {
       callback(data, status, req);
     }
+  }, function(err){
+    noInternet.show();
+    setTimeout(function(){noInternet.hide();}, 5000);
   });
 }
 function showLoading(){
