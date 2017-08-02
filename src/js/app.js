@@ -1,8 +1,7 @@
-{
-  noInternet,
-  loadingScreen
-  intermediateLoading
-} = require('./screens');
+var noInternet = screens.noInternet;
+var loadingScreen = screens.loadingScreen;
+var intermediateLoading = screens.intermediateLoading; 
+var screens = require('./screens');
 var UI = require('ui');
 var Vector2 = require('vector2');
 var ajax = require('ajax');
